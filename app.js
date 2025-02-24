@@ -20,7 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const textoTarea = input.value.trim();
         if (textoTarea !== '') {
-            const tarea = { id: Date.now(), texto: textoTarea, completada: false };
+            const fechaActual = new Date().toLocaleString(); // 📅 Capturamos la fecha y hora
+            const tarea = {
+                id: Date.now(),
+                texto: textoTarea,
+                completada: false,
+                fecha: fechaActual
+            };
+
 
             agregarTarea(tarea);
             guardarTarea(tarea);
@@ -32,8 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("✔ Se agrega una tarea:", tarea);
 
         const li = document.createElement('li');
-        li.textContent = tarea.texto;
+//        li.textContent = tarea.texto;
         li.dataset.id = tarea.id;
+
+        const divTexto = document.createElement('div');
+        divTexto.textContent = tarea.texto;
+
+        const spanFecha = document.createElement('span');
+        spanFecha.textContent = `📅 ${tarea.fecha}`;
+        spanFecha.classList.add('fecha-tarea')
 
         if (tarea.completada) {
             li.classList.add('completada');
@@ -45,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         li.addEventListener('dblclick', () => {
-            editarTarea(tarea.id, li);
+            editarTarea(tarea.id, divTexto);
         });
 
         const botonEliminar = document.createElement('button');
@@ -55,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             eliminarTarea(tarea.id);
         });
 
+
+        li.appendChild(divTexto);
+        li.appendChild(spanFecha);
         li.appendChild(botonEliminar);
         listaTareas.appendChild(li);
     }

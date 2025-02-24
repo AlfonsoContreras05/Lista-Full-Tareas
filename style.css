@@ -8,8 +8,7 @@ body{
     justify-content: center;
     height: 100vh;
     background-color: #f0f0f0;
-    min-height: 100vh;
-    overflow-y: auto;
+
 }
 
 h1{
@@ -119,4 +118,23 @@ li{
 
 .oscuro button:hover{
     background-color: #777;
+}
+
+
+
+
+#lista-tareas {
+    max-height: 400px;  /* 🔹 Limita la altura máxima de la lista */
+    overflow-y: auto;   /* 🔹 Agrega un scroll interno cuando haya muchas tareas */
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f8f8f8; /* Opcional, para mejor visualización */
+}
+
+.fecha-tarea{
+    display: block;
+    font-size: 12px;
+    color: gray;
+    margin-top: 3px;
+
 }
