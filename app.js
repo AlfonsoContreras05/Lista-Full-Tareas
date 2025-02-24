@@ -37,45 +37,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function agregarTarea(tarea) {
         console.log("✔ Se agrega una tarea:", tarea);
-
+    
         const li = document.createElement('li');
-//        li.textContent = tarea.texto;
         li.dataset.id = tarea.id;
-
+    
+        // 🔹 Contenedor de texto y fecha
         const divTexto = document.createElement('div');
         divTexto.textContent = tarea.texto;
-
+        divTexto.classList.add('texto-tarea');
+    
         const spanFecha = document.createElement('span');
         spanFecha.textContent = `📅 ${tarea.fecha}`;
-        spanFecha.classList.add('fecha-tarea')
-
-        if (tarea.completada) {
-            li.classList.add('completada');
-        }
-
-        li.addEventListener('click', () => {
+        spanFecha.classList.add('fecha-tarea');
+    
+        // 🔹 Botón COMPLETAR (marcar/desmarcar como completada)
+        const botonCompletar = document.createElement('button');
+        botonCompletar.textContent = '✔ Completar';
+        botonCompletar.classList.add('btn-completar');
+        botonCompletar.addEventListener('click', () => {
             li.classList.toggle('completada');
             actualizarEstadoTarea(tarea.id);
         });
-
-        li.addEventListener('dblclick', () => {
+    
+        // 🔹 Botón EDITAR (editar el texto)
+        const botonEditar = document.createElement('button');
+        botonEditar.textContent = '✏ Editar';
+        botonEditar.classList.add('btn-editar');
+        botonEditar.addEventListener('click', () => {
             editarTarea(tarea.id, divTexto);
         });
-
+    
+        // 🔹 Botón ELIMINAR (borrar la tarea)
         const botonEliminar = document.createElement('button');
-        botonEliminar.textContent = 'Eliminar';
+        botonEliminar.textContent = '🗑 Eliminar';
+        botonEliminar.classList.add('btn-eliminar');
         botonEliminar.addEventListener('click', () => {
             listaTareas.removeChild(li);
             eliminarTarea(tarea.id);
         });
-
-
+    
+        // 📌 Si la tarea está completada, aplicamos la clase CSS
+        if (tarea.completada) {
+            li.classList.add('completada');
+        }
+    
+        // 🔹 Agregamos los elementos al <li>
         li.appendChild(divTexto);
         li.appendChild(spanFecha);
+        li.appendChild(botonCompletar);
+        li.appendChild(botonEditar);
         li.appendChild(botonEliminar);
+    
         listaTareas.appendChild(li);
     }
-
+    
     function guardarTarea(tarea) {
         let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
         tareas.push(tarea);
@@ -115,37 +130,35 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('tareas', JSON.stringify(tareas));
     }
 
-    function editarTarea(id, li) {
-        const textoActual = li.textContent.replace('Eliminar', '').trim();
-        const input = document.createElement('input');
-        input.type = 'text';
+    function editarTarea(id, divTexto) {
+        const textoActual = divTexto.textContent.trim();
+    
+        if (divTexto.querySelector("input")) return;
+    
+        const input = document.createElement("input");
+        input.type = "text";
         input.value = textoActual;
-        input.classList.add('editando');
-
-        li.textContent = '';
-        li.appendChild(input);
+        input.classList.add("editando");
+    
+        divTexto.innerHTML = "";
+        divTexto.appendChild(input);
         input.focus();
-
-        // Evento para guardar cambios al presionar Enter
+    
         input.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
                 const nuevoTexto = input.value.trim();
                 if (nuevoTexto !== "") {
                     actualizarTextoTarea(id, nuevoTexto);
-
-                    // 🔹 Restauramos el contenido del <li> con el texto editado y el botón "Eliminar"
-                    li.textContent = nuevoTexto;
-                    agregarBotonEliminar(li, id);
+                    divTexto.textContent = nuevoTexto;
                 }
             }
         });
-
-        // Evento para cancelar edición si el input pierde el foco
+    
         input.addEventListener("blur", () => {
-            li.textContent = textoActual;
-            agregarBotonEliminar(li, id);
+            divTexto.textContent = textoActual;
         });
     }
+    
 
     // 🔹 Nueva función para agregar el botón "Eliminar"
     function agregarBotonEliminar(li, id) {

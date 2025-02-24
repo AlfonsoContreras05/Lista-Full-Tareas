@@ -1,140 +1,198 @@
-
-
-body{
+/* ✅ Estilos Generales */
+body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #f0f0f0;
-
+    margin: 0;
+    padding: 20px;
 }
 
-h1{
+h1 {
     color: #333;
+    margin-bottom: 15px;
 }
 
-form{
+form {
     margin-bottom: 20px;
-}
-
-input[type="text"]{
-    padding: 10px;
-    width: 250px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    margin-right: 10px;
-}
-
-button{
-    padding: 10px 20px;
-    border: none;
-    background-color: #333;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover{
-    background-color: #4cae4c
-}
-
-ul{
-    list-style: none;
-    padding: 0;
-}
-
-li{
-    background-color: #fff;
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    width: 300px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.completada {
-    text-decoration: line-through;
-    color: gray;
-    opacity: 0.7;
-}
-.editando {
-    width: 100%;
-    font-size: 16px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-}
-
-.filtros{
-    margin: 10px 0;
     display: flex;
     gap: 10px;
 }
 
-.filtros button{
-    padding: 5px 10px;
+input[type="text"] {
+    padding: 10px;
+    width: 250px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+button {
+    padding: 10px 15px;
     border: none;
     background-color: #333;
     color: #fff;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s ease;
 }
 
-.filtros button:hover{
-    background-color: #4cae4c
-}
-
-
-/*stilos modo oscuro*/
-
-.oscuro{
-    background-color: #333;
-    color: #fff;
-}   
-
-.oscuro h1{
-    color: #fff;
-}
-
-.oscuro li{
-    background-color: #333;
-    border-color: white;
-}
-
-.oscuro .completada{
-    color: #bbb;
-}
-
-.oscuro button{
+button:hover {
     background-color: #555;
+}
+
+/* ✅ Estilos para la lista de tareas */
+#lista-tareas {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #f8f8f8;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Cada tarea ahora tendrá mejor organización */
+li {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+li:hover {
+    transform: scale(1.02);
+}
+
+/* ✅ Contenedor de texto y fecha */
+.tarea-contenido {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin-bottom: 8px;
+}
+
+.fecha-tarea {
+    font-size: 12px;
+    color: gray;
+    margin-top: 5px;
+}
+
+/* ✅ Contenedor para los botones */
+.botones-tarea {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+/* ✅ Botones mejor organizados */
+.btn-completar {
+    background-color: #28a745;
     color: white;
 }
 
-.oscuro button:hover{
+.btn-completar:hover {
+    background-color: #218838;
+}
+
+.btn-editar {
+    background-color: #ff9800;
+    color: white;
+}
+
+.btn-editar:hover {
+    background-color: #e68900;
+}
+
+.btn-eliminar {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-eliminar:hover {
+    background-color: #c82333;
+}
+
+/* ✅ Hacer que las tareas completadas sean más visibles */
+.completada {
+    text-decoration: line-through;
+    color: #888;
+    opacity: 0.8;
+}
+
+/* ✅ Modo Oscuro Mejorado */
+.oscuro {
+    background-color: #222;
+    color: #fff;
+}
+
+.oscuro h1 {
+    color: white;
+}
+
+.oscuro #lista-tareas {
+    background-color: #2c2c2c;
+    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+.oscuro li {
+    background-color: #333;
+    color: white;
+}
+
+.oscuro .fecha-tarea {
+    color: #bbb;
+}
+
+.oscuro button {
+    background-color: #555;
+}
+
+.oscuro button:hover {
     background-color: #777;
 }
 
-
-
-
-#lista-tareas {
-    max-height: 400px;  /* 🔹 Limita la altura máxima de la lista */
-    overflow-y: auto;   /* 🔹 Agrega un scroll interno cuando haya muchas tareas */
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f8f8f8; /* Opcional, para mejor visualización */
+/* ✅ Filtros */
+.filtros {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
 }
 
-.fecha-tarea{
-    display: block;
-    font-size: 12px;
-    color: gray;
-    margin-top: 3px;
+.filtros button {
+    padding: 8px 12px;
+    border: none;
+    font-weight: bold;
+}
 
+/* 📱 RESPONSIVE DESIGN */
+@media (max-width: 500px) {
+    #lista-tareas {
+        max-width: 100%;
+    }
+
+    li {
+        padding: 12px;
+    }
+
+    .botones-tarea {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    button {
+        font-size: 12px;
+        padding: 8px;
+    }
 }
