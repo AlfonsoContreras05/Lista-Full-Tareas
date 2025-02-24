@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Lista de tareas</title>
+</head>
+
+<body>
+    <h1>Lista de tareas</h1>
+
+    <form id="form-tarea">
+        <input type="text" id="nueva-tarea" placeholder="Escribe una nueva tarea" required>
+        <button type="submit">Agregar</button>
+</form>
+
+<div class="filtros">
+    <button id="mostrar-todas">Todas</button>
+    <button id="mostrar-pendientes">Pendientes</button>
+    <button id="mostrar-completadas">Completadas</button>
+</div>
+
+<button id="modo-oscuro"> 🌙Modo oscuro
+
+</button>
+
+<ul id="lista-tareas"></ul>
+    <script src="app.js"></script>
+</body>
+
+</html>
