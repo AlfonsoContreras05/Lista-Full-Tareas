@@ -5,6 +5,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.querySelector('#nueva-tarea');
     const listaTareas = document.querySelector('#lista-tareas');
 
+    listaTareas.addEventListener("drop", () => {
+        const nuevasTareas = [...listaTareas.children].map(li => {
+            return {
+                id: parseInt(li.dataset.id),
+                texto: li.querySelector(".texto-tarea").textContent,
+                completada: li.classList.contains("completada"),
+                fecha: li.querySelector(".fecha-tarea").textContent.replace("📅 ", ""),
+            };
+        });
+    
+        localStorage.setItem("tareas", JSON.stringify(nuevasTareas));
+    });
+
     console.log("Formulario detectado:", form);
 
     if (!form) {
@@ -40,6 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const li = document.createElement('li');
         li.dataset.id = tarea.id;
+        li.draggable = true;
+
+        //evento para deteccion cuando la tarea comience a moverse
+        li.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', tarea.id);
+            li.classList.add('arrastrando');
+        });
+
+        li.addEventListener('dragend', () => {
+            li.classList.remove('arrastrando');
+        });
 
         // 🔹 Contenedor de texto y fecha
         const divTexto = document.createElement('div');
@@ -72,8 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
         botonEliminar.textContent = '🗑 Eliminar';
         botonEliminar.classList.add('btn-eliminar');
         botonEliminar.addEventListener('click', () => {
-            listaTareas.removeChild(li);
-            eliminarTarea(tarea.id);
+            li.classList.add('desaparecer');
+            setTimeout(() => {
+                listaTareas.removeChild(li);
+                eliminarTarea(tarea.id);
+            }
+                , 500);
         });
 
         // 📌 Si la tarea está completada, aplicamos la clase CSS
@@ -103,8 +131,42 @@ document.addEventListener('DOMContentLoaded', () => {
         listaTareas.innerHTML = '';
         tareas.forEach(tarea => agregarTarea(tarea));
 
+        
 
     }
+
+    listaTareas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(listaTareas, e.clientY);
+        const dragging = document.querySelector('.arrastrando');
+
+        if (afterElement == null) {
+            listaTareas.appendChild(dragging);
+        } else {
+            listaTareas.insertBefore(dragging, afterElement);
+        }
+    });
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('li:not(.arrastrando)')];
+
+        
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+
+            const offset = y - box.top - box.height / 2;
+
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }
+            , { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+
 
     // 📤 EXPORTAR JSON
     document.getElementById("exportar-json").addEventListener("click", () => {
@@ -115,8 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         link.download = "tareas.json";
         link.click();
     });
-
-
 
     // 📤 EXPORTAR TXT
     document.getElementById("exportar-txt").addEventListener("click", () => {
@@ -137,46 +197,46 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById("importar-json").addEventListener("change", (event) => {
         let file = event.target.files[0];
         if (!file) return;
-    
+
         let reader = new FileReader();
         reader.onload = (e) => {
             try {
                 let tareasImportadas = JSON.parse(e.target.result);
-    
+
                 // 📌 Validamos que el archivo tenga tareas correctamente formateadas
                 if (!Array.isArray(tareasImportadas)) {
                     throw new Error("Formato incorrecto");
                 }
-    
+
                 // 📌 Verificamos que cada tarea tenga los campos correctos
-                tareasImportadas = tareasImportadas.filter(t => 
+                tareasImportadas = tareasImportadas.filter(t =>
                     t.hasOwnProperty("id") &&
                     t.hasOwnProperty("texto") &&
                     t.hasOwnProperty("completada") &&
                     t.hasOwnProperty("fecha")
                 );
-    
+
                 if (tareasImportadas.length === 0) {
                     alert("❌ El archivo no contiene tareas válidas.");
                     return;
                 }
-    
+
                 // 📌 Guardamos en localStorage
                 localStorage.setItem("tareas", JSON.stringify(tareasImportadas));
-    
+
                 // 📌 Recargamos la lista de tareas en la UI
                 recargarListaOrdenada();
-    
+
                 alert("✅ Tareas importadas con éxito!");
-    
+
             } catch (error) {
                 alert("❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.");
             }
         };
-    
+
         reader.readAsText(file);
     });
-    
+
 
     function actualizarEstadoTarea(id) {
         let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
@@ -247,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
         li.appendChild(botonEliminar);
     }
 
-
     function actualizarTextoTarea(id, nuevoTexto) {
         let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
         tareas = tareas.map(t => t.id === id ? { ...t, texto: nuevoTexto } : t);
@@ -300,4 +359,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     );
 });
+
+
 

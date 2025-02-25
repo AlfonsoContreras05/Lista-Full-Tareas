@@ -292,3 +292,17 @@ li {
 .exportar-importar button:hover {
     background-color: #4cae4c;
 }
+
+
+.arrastrando {
+    opacity: 0.5;
+    transform: scale(1.05);
+}
+
+li {
+    transition: transform 0.2s ease-in-out;
+}
+
+li:hover {
+    transform: scale(1.02);
+}
