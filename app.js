@@ -37,19 +37,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function agregarTarea(tarea) {
         console.log("✔ Se agrega una tarea:", tarea);
-    
+
         const li = document.createElement('li');
         li.dataset.id = tarea.id;
-    
+
         // 🔹 Contenedor de texto y fecha
         const divTexto = document.createElement('div');
         divTexto.textContent = tarea.texto;
         divTexto.classList.add('texto-tarea');
-    
+
         const spanFecha = document.createElement('span');
         spanFecha.textContent = `📅 ${tarea.fecha}`;
         spanFecha.classList.add('fecha-tarea');
-    
+
         // 🔹 Botón COMPLETAR (marcar/desmarcar como completada)
         const botonCompletar = document.createElement('button');
         botonCompletar.textContent = '✔ Completar';
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             li.classList.toggle('completada');
             actualizarEstadoTarea(tarea.id);
         });
-    
+
         // 🔹 Botón EDITAR (editar el texto)
         const botonEditar = document.createElement('button');
         botonEditar.textContent = '✏ Editar';
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         botonEditar.addEventListener('click', () => {
             editarTarea(tarea.id, divTexto);
         });
-    
+
         // 🔹 Botón ELIMINAR (borrar la tarea)
         const botonEliminar = document.createElement('button');
         botonEliminar.textContent = '🗑 Eliminar';
@@ -75,22 +75,22 @@ document.addEventListener('DOMContentLoaded', () => {
             listaTareas.removeChild(li);
             eliminarTarea(tarea.id);
         });
-    
+
         // 📌 Si la tarea está completada, aplicamos la clase CSS
         if (tarea.completada) {
             li.classList.add('completada');
         }
-    
+
         // 🔹 Agregamos los elementos al <li>
         li.appendChild(divTexto);
         li.appendChild(spanFecha);
         li.appendChild(botonCompletar);
         li.appendChild(botonEditar);
         li.appendChild(botonEliminar);
-    
+
         listaTareas.appendChild(li);
     }
-    
+
     function guardarTarea(tarea) {
         let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
         tareas.push(tarea);
@@ -102,7 +102,81 @@ document.addEventListener('DOMContentLoaded', () => {
         tareas.sort((a, b) => a.completada - b.completada);
         listaTareas.innerHTML = '';
         tareas.forEach(tarea => agregarTarea(tarea));
+
+
     }
+
+    // 📤 EXPORTAR JSON
+    document.getElementById("exportar-json").addEventListener("click", () => {
+        let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+        let blob = new Blob([JSON.stringify(tareas, null, 2)], { type: "application/json" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "tareas.json";
+        link.click();
+    });
+
+
+
+    // 📤 EXPORTAR TXT
+    document.getElementById("exportar-txt").addEventListener("click", () => {
+        let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+        let contenido = tareas.map(t => `[${t.completada ? "✔" : "❌"}] ${t.texto} - ${t.fecha}`).join("\n");
+        let blob = new Blob([contenido], { type: "text/plain" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "tareas.txt";
+        link.click();
+    });
+
+    // 📥 IMPORTAR JSON
+    document.getElementById("importar-btn").addEventListener("click", () => {
+        document.getElementById("importar-json").click();
+    });
+
+    document.getElementById("importar-json").addEventListener("change", (event) => {
+        let file = event.target.files[0];
+        if (!file) return;
+    
+        let reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                let tareasImportadas = JSON.parse(e.target.result);
+    
+                // 📌 Validamos que el archivo tenga tareas correctamente formateadas
+                if (!Array.isArray(tareasImportadas)) {
+                    throw new Error("Formato incorrecto");
+                }
+    
+                // 📌 Verificamos que cada tarea tenga los campos correctos
+                tareasImportadas = tareasImportadas.filter(t => 
+                    t.hasOwnProperty("id") &&
+                    t.hasOwnProperty("texto") &&
+                    t.hasOwnProperty("completada") &&
+                    t.hasOwnProperty("fecha")
+                );
+    
+                if (tareasImportadas.length === 0) {
+                    alert("❌ El archivo no contiene tareas válidas.");
+                    return;
+                }
+    
+                // 📌 Guardamos en localStorage
+                localStorage.setItem("tareas", JSON.stringify(tareasImportadas));
+    
+                // 📌 Recargamos la lista de tareas en la UI
+                recargarListaOrdenada();
+    
+                alert("✅ Tareas importadas con éxito!");
+    
+            } catch (error) {
+                alert("❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.");
+            }
+        };
+    
+        reader.readAsText(file);
+    });
+    
 
     function actualizarEstadoTarea(id) {
         let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
@@ -132,18 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function editarTarea(id, divTexto) {
         const textoActual = divTexto.textContent.trim();
-    
+
         if (divTexto.querySelector("input")) return;
-    
+
         const input = document.createElement("input");
         input.type = "text";
         input.value = textoActual;
         input.classList.add("editando");
-    
+
         divTexto.innerHTML = "";
         divTexto.appendChild(input);
         input.focus();
-    
+
         input.addEventListener("keypress", (e) => {
             if (e.key === "Enter") {
                 const nuevoTexto = input.value.trim();
@@ -153,12 +227,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-    
+
         input.addEventListener("blur", () => {
             divTexto.textContent = textoActual;
         });
     }
-    
+
+
 
     // 🔹 Nueva función para agregar el botón "Eliminar"
     function agregarBotonEliminar(li, id) {

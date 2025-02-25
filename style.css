@@ -131,36 +131,79 @@ li:hover {
     opacity: 0.8;
 }
 
-/* ✅ Modo Oscuro Mejorado */
+/* ✅ MEJORAS EN MODO OSCURO */
 .oscuro {
-    background-color: #222;
-    color: #fff;
-}
-
-.oscuro h1 {
+    background-color: #121212;
     color: white;
 }
-
 .oscuro #lista-tareas {
     background-color: #2c2c2c;
     box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
 }
-
-.oscuro li {
-    background-color: #333;
-    color: white;
+.oscuro h1 {
+    color: #ffffff;
 }
 
-.oscuro .fecha-tarea {
-    color: #bbb;
-}
-
+/* ✅ Hacer que los botones resalten más en modo oscuro */
 .oscuro button {
-    background-color: #555;
+    background-color: #333;
+    border: 1px solid #555;
+    color: white;
+    transition: all 0.3s ease;
 }
 
 .oscuro button:hover {
-    background-color: #777;
+    background-color: #444;
+    border-color: #777;
+}
+
+/* ✅ Hacer que los botones de acción se vean más vivos en modo oscuro */
+.oscuro .btn-completar {
+    background-color: #28a745;
+    border: 1px solid #1e7e34;
+    color: white;
+}
+
+.oscuro .btn-completar:hover {
+    background-color: #34d058;
+    border-color: #28a745;
+}
+
+.oscuro .btn-editar {
+    background-color: #ff9800;
+    border: 1px solid #e68900;
+    color: white;
+}
+
+.oscuro .btn-editar:hover {
+    background-color: #ffb347;
+    border-color: #ff9800;
+}
+
+.oscuro .btn-eliminar {
+    background-color: #dc3545;
+    border: 1px solid #c82333;
+    color: white;
+}
+
+.oscuro .btn-eliminar:hover {
+    background-color: #ff5a5f;
+    border-color: #dc3545;
+}
+
+/* ✅ Mejorar las tareas en modo oscuro */
+.oscuro li {
+    background-color: #222;
+    color: white;
+    border: 1px solid #444;
+    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* ✅ Mejor contraste en las tareas completadas */
+.oscuro .completada {
+    color: #bbb;
+    text-decoration: line-through;
+    opacity: 0.6;
 }
 
 /* ✅ Filtros */
@@ -195,4 +238,57 @@ li:hover {
         font-size: 12px;
         padding: 8px;
     }
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ✅ Aplicamos la animación a cada tarea agregada */
+li {
+    animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+/* ✅ Clase para que las tareas desaparezcan con animación */
+.desaparecer {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+
+.exportar-importar {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.exportar-importar button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+}
+
+.exportar-importar button:hover {
+    background-color: #4cae4c;
 }
