@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function agregarTarea(tarea) {
+    function agregarTarea(tarea, esCargaInicial = false) {
         console.log("✔ Se agrega una tarea:", tarea);
 
         const li = document.createElement('li');
@@ -93,6 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
             li.classList.toggle('completada');
             actualizarEstadoTarea(tarea.id);
             actualizarContador();
+
+            if (li.classList.contains('completada')) {
+                mostrarNotificacion('🎯 Tarea completada', 'success');
+            } else {
+                mostrarNotificacion('🔄 Tarea marcada como pendiente', 'warning');
+            }
         });
 
         // 🔹 Botón EDITAR (editar el texto)
@@ -101,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         botonEditar.classList.add('btn-editar');
         botonEditar.addEventListener('click', () => {
             editarTarea(tarea.id, divTexto);
+            mostrarNotificacion('✏️ Modo edición activado', 'warning');
         });
 
         // 🔹 Botón ELIMINAR (borrar la tarea)
@@ -113,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 eliminarTarea(tarea.id);
                 listaTareas.removeChild(li);
                 actualizarContador();
+                mostrarNotificacion('🗑️ Tarea eliminada', 'error');
             }
                 , 500);
         });
@@ -130,241 +138,244 @@ document.addEventListener('DOMContentLoaded', () => {
         li.appendChild(botonEliminar);
 
         listaTareas.appendChild(li);
-    }
+        // 📌 Evitamos notificaciones al cargar tareas desde localStorage
+        if (!esCargaInicial) {
+            mostrarNotificacion('✅ Tarea agregada con éxito', 'success');
 
-    function guardarTarea(tarea) {
-        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-        tareas.push(tarea);
-        localStorage.setItem('tareas', JSON.stringify(tareas));
-    }
-
-    function cargarTareas() {
-        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-        tareas.sort((a, b) => a.completada - b.completada);
-        listaTareas.innerHTML = '';
-        tareas.forEach(tarea => agregarTarea(tarea));
-
-
-
-    }
-
-    function actualizarContador() {
-        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-
-        let total = tareas.length;
-        let completadas = tareas.filter(t => t.completada).length;
-        let pendientes = total - completadas;
-
-        document.getElementById('total-tareas').textContent = total;
-        document.getElementById('pendientes-tareas').textContent = pendientes;
-        document.getElementById('completadas-tareas').textContent = completadas;
-    }
-
-    listaTareas.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(listaTareas, e.clientY);
-        const dragging = document.querySelector('.arrastrando');
-
-        if (afterElement == null) {
-            listaTareas.appendChild(dragging);
-        } else {
-            listaTareas.insertBefore(dragging, afterElement);
         }
-    });
+    }
 
+        function guardarTarea(tarea) {
+            let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+            tareas.push(tarea);
+            localStorage.setItem('tareas', JSON.stringify(tareas));
+        }
 
-    function getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('li:not(.arrastrando)')];
+        function cargarTareas() {
+            let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+            tareas.sort((a, b) => a.completada - b.completada);
+            listaTareas.innerHTML = '';
+            tareas.forEach(tarea => agregarTarea(tarea, true));
 
+        }
 
+        function actualizarContador() {
+            let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
 
-        return draggableElements.reduce((closest, child) => {
-            const box = child.getBoundingClientRect();
+            let total = tareas.length;
+            let completadas = tareas.filter(t => t.completada).length;
+            let pendientes = total - completadas;
 
-            const offset = y - box.top - box.height / 2;
+            document.getElementById('total-tareas').textContent = total;
+            document.getElementById('pendientes-tareas').textContent = pendientes;
+            document.getElementById('completadas-tareas').textContent = completadas;
+        }
 
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
+        listaTareas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(listaTareas, e.clientY);
+            const dragging = document.querySelector('.arrastrando');
+
+            if (afterElement == null) {
+                listaTareas.appendChild(dragging);
             } else {
-                return closest;
-            }
-        }
-            , { offset: Number.NEGATIVE_INFINITY }).element;
-    }
-
-
-
-    // 📤 EXPORTAR JSON
-    document.getElementById("exportar-json").addEventListener("click", () => {
-        let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-        let blob = new Blob([JSON.stringify(tareas, null, 2)], { type: "application/json" });
-        let link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "tareas.json";
-        link.click();
-    });
-
-    // 📤 EXPORTAR TXT
-    document.getElementById("exportar-txt").addEventListener("click", () => {
-        let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-        let contenido = tareas.map(t => `[${t.completada ? "✔" : "❌"}] ${t.texto} - ${t.fecha}`).join("\n");
-        let blob = new Blob([contenido], { type: "text/plain" });
-        let link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "tareas.txt";
-        link.click();
-    });
-
-    // 📥 IMPORTAR JSON
-    document.getElementById("importar-btn").addEventListener("click", () => {
-        document.getElementById("importar-json").click();
-    });
-
-    document.getElementById("importar-json").addEventListener("change", (event) => {
-        let file = event.target.files[0];
-        if (!file) return;
-
-        let reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                let tareasImportadas = JSON.parse(e.target.result);
-
-                // 📌 Validamos que el archivo tenga tareas correctamente formateadas
-                if (!Array.isArray(tareasImportadas)) {
-                    throw new Error("Formato incorrecto");
-                }
-
-                // 📌 Verificamos que cada tarea tenga los campos correctos
-                tareasImportadas = tareasImportadas.filter(t =>
-                    t.hasOwnProperty("id") &&
-                    t.hasOwnProperty("texto") &&
-                    t.hasOwnProperty("completada") &&
-                    t.hasOwnProperty("fecha")
-                );
-
-                if (tareasImportadas.length === 0) {
-                    alert("❌ El archivo no contiene tareas válidas.");
-                    return;
-                }
-
-                // 📌 Guardamos en localStorage
-                localStorage.setItem("tareas", JSON.stringify(tareasImportadas));
-
-                // 📌 Recargamos la lista de tareas en la UI
-                recargarListaOrdenada();
-
-                alert("✅ Tareas importadas con éxito!");
-
-            } catch (error) {
-                alert("❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.");
-            }
-        };
-
-        reader.readAsText(file);
-    });
-
-
-    function actualizarEstadoTarea(id) {
-        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-        tareas = tareas.map(t => t.id === id ? { ...t, completada: !t.completada } : t);
-        localStorage.setItem('tareas', JSON.stringify(tareas));
-
-        recargarListaOrdenada();
-        actualizarContador(); // 🔹 Ahora se actualiza el contador al completar una tarea
-    }
-
-
-    function recargarListaOrdenada() {
-        while (listaTareas.firstChild) {
-            listaTareas.removeChild(listaTareas.firstChild);
-        }
-
-
-        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-
-        tareas.sort((a, b) => a.completada - b.completada);
-        tareas.forEach(tarea => agregarTarea(tarea));
-    }
-
-    function eliminarTarea(id) {
-        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-        tareas = tareas.filter(t => t.id !== id);
-        localStorage.setItem('tareas', JSON.stringify(tareas));
-    }
-
-    function editarTarea(id, divTexto) {
-        const textoActual = divTexto.textContent.trim();
-
-        if (divTexto.querySelector("input")) return;
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.value = textoActual;
-        input.classList.add("editando");
-
-        divTexto.innerHTML = "";
-        divTexto.appendChild(input);
-        input.focus();
-
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                const nuevoTexto = input.value.trim();
-                if (nuevoTexto !== "") {
-                    actualizarTextoTarea(id, nuevoTexto);
-                    divTexto.textContent = nuevoTexto;
-                }
+                listaTareas.insertBefore(dragging, afterElement);
             }
         });
 
-        input.addEventListener("blur", () => {
-            divTexto.textContent = textoActual;
-        });
-    }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('li:not(.arrastrando)')];
 
 
 
-    // 🔹 Nueva función para agregar el botón "Eliminar"
-    function agregarBotonEliminar(li, id) {
-        const botonEliminar = document.createElement('button');
-        botonEliminar.textContent = 'Eliminar';
-        botonEliminar.addEventListener('click', () => {
-            listaTareas.removeChild(li);
-            eliminarTarea(id);
-        });
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
 
-        li.appendChild(botonEliminar);
-    }
+                const offset = y - box.top - box.height / 2;
 
-    function actualizarTextoTarea(id, nuevoTexto) {
-        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
-        tareas = tareas.map(t => t.id === id ? { ...t, texto: nuevoTexto } : t);
-        localStorage.setItem('tareas', JSON.stringify(tareas));
-    }
-
-    document.getElementById("mostrar-todas").addEventListener("click", () => filtrarTareas("todas"));
-
-    document.getElementById("mostrar-completadas").addEventListener("click", () => filtrarTareas("completadas"));
-
-    document.getElementById("mostrar-pendientes").addEventListener("click", () => filtrarTareas("pendientes"));
-
-    function filtrarTareas(filtro) {
-        let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
-
-        let tareasFiltradas = [];
-
-        if (filtro === "pendientes") {
-            tareasFiltradas = tareas.filter(t => !t.completada);
-        } else if (filtro === "completadas") {
-            tareasFiltradas = tareas.filter(t => t.completada);
-        } else {
-            tareasFiltradas = tareas; // Todas las tareas
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }
+                , { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        listaTareas.innerHTML = ""; // Limpiar la lista antes de mostrar el filtro
-        tareasFiltradas.forEach(tarea => agregarTarea(tarea));
-    }
 
-});
+
+        // 📤 EXPORTAR JSON
+        document.getElementById("exportar-json").addEventListener("click", () => {
+            let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+            let blob = new Blob([JSON.stringify(tareas, null, 2)], { type: "application/json" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "tareas.json";
+            link.click();
+        });
+
+        // 📤 EXPORTAR TXT
+        document.getElementById("exportar-txt").addEventListener("click", () => {
+            let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+            let contenido = tareas.map(t => `[${t.completada ? "✔" : "❌"}] ${t.texto} - ${t.fecha}`).join("\n");
+            let blob = new Blob([contenido], { type: "text/plain" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "tareas.txt";
+            link.click();
+        });
+
+        // 📥 IMPORTAR JSON
+        document.getElementById("importar-btn").addEventListener("click", () => {
+            document.getElementById("importar-json").click();
+        });
+
+        document.getElementById("importar-json").addEventListener("change", (event) => {
+            let file = event.target.files[0];
+            if (!file) return;
+
+            let reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    let tareasImportadas = JSON.parse(e.target.result);
+
+                    // 📌 Validamos que el archivo tenga tareas correctamente formateadas
+                    if (!Array.isArray(tareasImportadas)) {
+                        throw new Error("Formato incorrecto");
+                    }
+
+                    // 📌 Verificamos que cada tarea tenga los campos correctos
+                    tareasImportadas = tareasImportadas.filter(t =>
+                        t.hasOwnProperty("id") &&
+                        t.hasOwnProperty("texto") &&
+                        t.hasOwnProperty("completada") &&
+                        t.hasOwnProperty("fecha")
+                    );
+
+                    if (tareasImportadas.length === 0) {
+                        alert("❌ El archivo no contiene tareas válidas.");
+                        return;
+                    }
+
+                    // 📌 Guardamos en localStorage
+                    localStorage.setItem("tareas", JSON.stringify(tareasImportadas));
+
+                    // 📌 Recargamos la lista de tareas en la UI
+                    recargarListaOrdenada();
+
+                    alert("✅ Tareas importadas con éxito!");
+
+                } catch (error) {
+                    alert("❌ Error al importar el archivo. Asegúrate de que sea un JSON válido.");
+                }
+            };
+
+            reader.readAsText(file);
+        });
+
+
+        function actualizarEstadoTarea(id) {
+            let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+            tareas = tareas.map(t => t.id === id ? { ...t, completada: !t.completada } : t);
+            localStorage.setItem('tareas', JSON.stringify(tareas));
+
+            recargarListaOrdenada();
+            actualizarContador(); // 🔹 Ahora se actualiza el contador al completar una tarea
+        }
+
+
+        function recargarListaOrdenada() {
+            while (listaTareas.firstChild) {
+                listaTareas.removeChild(listaTareas.firstChild);
+            }
+
+
+            let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+
+            tareas.sort((a, b) => a.completada - b.completada);
+            tareas.forEach(tarea => agregarTarea(tarea));
+        }
+
+        function eliminarTarea(id) {
+            let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+            tareas = tareas.filter(t => t.id !== id);
+            localStorage.setItem('tareas', JSON.stringify(tareas));
+        }
+
+        function editarTarea(id, divTexto) {
+            const textoActual = divTexto.textContent.trim();
+
+            if (divTexto.querySelector("input")) return;
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.value = textoActual;
+            input.classList.add("editando");
+
+            divTexto.innerHTML = "";
+            divTexto.appendChild(input);
+            input.focus();
+
+            input.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    const nuevoTexto = input.value.trim();
+                    if (nuevoTexto !== "") {
+                        actualizarTextoTarea(id, nuevoTexto);
+                        divTexto.textContent = nuevoTexto;
+                    }
+                }
+            });
+
+            input.addEventListener("blur", () => {
+                divTexto.textContent = textoActual;
+            });
+        }
+
+
+
+        // 🔹 Nueva función para agregar el botón "Eliminar"
+        function agregarBotonEliminar(li, id) {
+            const botonEliminar = document.createElement('button');
+            botonEliminar.textContent = 'Eliminar';
+            botonEliminar.addEventListener('click', () => {
+                listaTareas.removeChild(li);
+                eliminarTarea(id);
+            });
+
+            li.appendChild(botonEliminar);
+        }
+
+        function actualizarTextoTarea(id, nuevoTexto) {
+            let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+            tareas = tareas.map(t => t.id === id ? { ...t, texto: nuevoTexto } : t);
+            localStorage.setItem('tareas', JSON.stringify(tareas));
+        }
+
+        document.getElementById("mostrar-todas").addEventListener("click", () => filtrarTareas("todas"));
+
+        document.getElementById("mostrar-completadas").addEventListener("click", () => filtrarTareas("completadas"));
+
+        document.getElementById("mostrar-pendientes").addEventListener("click", () => filtrarTareas("pendientes"));
+
+        function filtrarTareas(filtro) {
+            let tareas = JSON.parse(localStorage.getItem("tareas")) || [];
+
+            let tareasFiltradas = [];
+
+            if (filtro === "pendientes") {
+                tareasFiltradas = tareas.filter(t => !t.completada);
+            } else if (filtro === "completadas") {
+                tareasFiltradas = tareas.filter(t => t.completada);
+            } else {
+                tareasFiltradas = tareas; // Todas las tareas
+            }
+
+            listaTareas.innerHTML = ""; // Limpiar la lista antes de mostrar el filtro
+            tareasFiltradas.forEach(tarea => agregarTarea(tarea));
+        }
+
+    });
 
 document.addEventListener('DOMContentLoaded', () => {
     const botonModoOscuro = document.getElementById('modo-oscuro');
@@ -409,4 +420,17 @@ function filtrarPorCategoria(categoria) {
     });
 }
 
+function mostrarNotificacion(mensaje, tipo) {
+    const notificaciones = document.getElementById('notificaciones');
 
+    const toast = document.createElement('div');
+    toast.classList.add('toast', tipo);
+    toast.textContent = mensaje;
+
+    notificaciones.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }
+        , 4000);
+}

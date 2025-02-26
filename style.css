@@ -382,8 +382,11 @@ li:hover {
     border-radius: 5px;
     font-size: 12px;
     font-weight: bold;
-    color: white;
+    color: rgb(255, 255, 255);
     margin-left: 10px;
+    text-align: center;
+    width: 25%;
+    margin: 0 auto;
 }
 
 .categoria.personal { background-color: #007bff; }  /* Azul */
@@ -409,4 +412,36 @@ li:hover {
 
 .filtro-categoria:hover {
     background: #bbb;
+}
+#notificaciones {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateX(100%);
+    animation: fadeInOut 4s ease forwards;
+}
+
+.toast.success { background-color: #28a745; }  /* Verde para éxito */
+.toast.warning { background-color: #ffc107; }  /* Amarillo para edición */
+.toast.error { background-color: #dc3545; }    /* Rojo para eliminación */
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(100%); }
+    10% { opacity: 1; transform: translateX(0); }
+    90% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(100%); }
 }
