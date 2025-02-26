@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fecha: li.querySelector(".fecha-tarea").textContent.replace("📅 ", ""),
             };
         });
-    
+
         localStorage.setItem("tareas", JSON.stringify(nuevasTareas));
     });
 
@@ -26,24 +26,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     cargarTareas();
+    actualizarContador();
+
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         console.log("✔ Evento de envío detectado.");
 
         const textoTarea = input.value.trim();
+        const categoria = document.getElementById('categoria').value;
+
         if (textoTarea !== '') {
             const fechaActual = new Date().toLocaleString(); // 📅 Capturamos la fecha y hora
             const tarea = {
                 id: Date.now(),
                 texto: textoTarea,
                 completada: false,
-                fecha: fechaActual
+                fecha: fechaActual,
+                categoria: categoria
             };
 
-
-            agregarTarea(tarea);
             guardarTarea(tarea);
+            agregarTarea(tarea);
+            actualizarContador();
             input.value = '';
         }
     });
@@ -54,6 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = document.createElement('li');
         li.dataset.id = tarea.id;
         li.draggable = true;
+
+        const categoriaSpan = document.createElement('span');
+        categoriaSpan.textContent = tarea.categoria;
+        categoriaSpan.classList.add('categoria', tarea.categoria); // Agrega clase para colores
+
+        li.appendChild(categoriaSpan);
 
         //evento para deteccion cuando la tarea comience a moverse
         li.addEventListener('dragstart', (e) => {
@@ -81,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         botonCompletar.addEventListener('click', () => {
             li.classList.toggle('completada');
             actualizarEstadoTarea(tarea.id);
+            actualizarContador();
         });
 
         // 🔹 Botón EDITAR (editar el texto)
@@ -98,8 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         botonEliminar.addEventListener('click', () => {
             li.classList.add('desaparecer');
             setTimeout(() => {
-                listaTareas.removeChild(li);
                 eliminarTarea(tarea.id);
+                listaTareas.removeChild(li);
+                actualizarContador();
             }
                 , 500);
         });
@@ -131,8 +144,20 @@ document.addEventListener('DOMContentLoaded', () => {
         listaTareas.innerHTML = '';
         tareas.forEach(tarea => agregarTarea(tarea));
 
-        
 
+
+    }
+
+    function actualizarContador() {
+        let tareas = JSON.parse(localStorage.getItem('tareas')) || [];
+
+        let total = tareas.length;
+        let completadas = tareas.filter(t => t.completada).length;
+        let pendientes = total - completadas;
+
+        document.getElementById('total-tareas').textContent = total;
+        document.getElementById('pendientes-tareas').textContent = pendientes;
+        document.getElementById('completadas-tareas').textContent = completadas;
     }
 
     listaTareas.addEventListener('dragover', (e) => {
@@ -147,10 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+
     function getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('li:not(.arrastrando)')];
 
-        
+
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
@@ -244,7 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('tareas', JSON.stringify(tareas));
 
         recargarListaOrdenada();
+        actualizarContador(); // 🔹 Ahora se actualiza el contador al completar una tarea
     }
+
 
     function recargarListaOrdenada() {
         while (listaTareas.firstChild) {
@@ -360,5 +388,25 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 });
 
+document.querySelectorAll('.filtro-categoria').forEach(btn => {
+    btn.addEventListener('click', () => {
+        let categoriaSeleccionada = btn.dataset.categoria;
+        filtrarPorCategoria(categoriaSeleccionada);
+    });
+});
+
+function filtrarPorCategoria(categoria) {
+    let tareas = document.querySelectorAll('#lista-tareas li');
+
+    tareas.forEach(tarea => {
+        let categoriaTarea = tarea.querySelector('.categoria').textContent;
+
+        if (categoria === 'todas' || categoriaTarea === categoria) {
+            tarea.style.display = 'block';
+        } else {
+            tarea.style.display = 'none';
+        }
+    });
+}
 
 

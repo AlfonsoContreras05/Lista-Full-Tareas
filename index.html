@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <!-- <link rel="icon" href="data:,"> -->
-    <link rel="icon" href="favicon.ico" type="/favicon-32x32.png">
-
-
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <title>Lista de tareas</title>
   </head>
 
   <body>
+
     <h1>Lista de tareas</h1>
 
     <form id="form-tarea">
@@ -21,6 +20,13 @@
         placeholder="Escribe una nueva tarea"
         required
       />
+      <label for="categoria">Categoria</label>
+      <select id="categoria">
+        <option value="trabajo">Trabajo</option>
+        <option value="personal">Personal</option>
+        <option value="estudio">Estudio</option>
+        <option value="otras">Otras</option>
+      </select>
       <button type="submit">Agregar</button>
     </form>
 
@@ -28,15 +34,30 @@
       <button id="mostrar-todas">Todas</button>
       <button id="mostrar-pendientes">Pendientes</button>
       <button id="mostrar-completadas">Completadas</button>
+    </div> 
+
+    <div id="filtro-categorias">
+      <button class="filtro-categoria" data-categoria="todas"> Todas </button>
+      <button class="filtro-categoria" data-categoria="personal"> Personal </button>
+      <button class="filtro-categoria" data-categoria="trabajo"> Trabajo </button>
+      <button class="filtro-categoria" data-categoria="estudio"> Estudio </button>
+      <button class="filtro-categoria" data-categoria="otros"> Otros </button>
     </div>
 
-    <button id="modo-oscuro">🌙Modo oscuro</button><br />
+    <button id="modo-oscuro">🌙Modo oscuro</button><br /> 
 
     <div class="exportar-importar">
       <button id="exportar-json">📤 Exportar JSON</button>
       <button id="exportar-txt">📤 Exportar TXT</button>
       <input type="file" id="importar-json" style="display: none" />
       <button id="importar-btn">📤 Importar JSON</button>
+    </div><br>
+    
+
+    <div id="contador-tareas">
+        <span>Total: <strong id="total-tareas">0</strong></span>
+        <span>Pendientes: <strong id="pendientes-tareas">0</strong></span>
+        <span>Completadas:<strong id="completadas-tareas"></strong> </span>
     </div>
 
     <ul id="lista-tareas"></ul>

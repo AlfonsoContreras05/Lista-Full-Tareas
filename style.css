@@ -55,8 +55,8 @@ button:hover {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    width: 100%;
-    max-width: 450px;
+    width: 90%;
+    max-width: 800px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -100,6 +100,7 @@ li:hover {
 .btn-completar {
     background-color: #28a745;
     color: white;
+    display: inline-flex;
 }
 
 .btn-completar:hover {
@@ -109,6 +110,7 @@ li:hover {
 .btn-editar {
     background-color: #ff9800;
     color: white;
+    display: inline-flex;
 }
 
 .btn-editar:hover {
@@ -118,6 +120,7 @@ li:hover {
 .btn-eliminar {
     background-color: #dc3545;
     color: white;
+    display: inline-flex;
 }
 
 .btn-eliminar:hover {
@@ -305,4 +308,105 @@ li {
 
 li:hover {
     transform: scale(1.02);
+}
+
+
+#contador-tareas {
+    font-size: 16px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.oscuro #contador-tareas {
+    background: #2c2c2c;
+    color: white;
+}
+
+
+#menu-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#menu-superior h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+#filtros {
+    display: flex;
+    gap: 10px;
+}
+
+#filtros button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background: #5cb85c;
+    color: white;
+    cursor: pointer;
+}
+
+#modo-oscuro {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background: #343a40;
+    color: white;
+    cursor: pointer;
+}
+
+.oscuro #menu-superior {
+    background: #2c2c2c;
+}
+
+.oscuro #modo-oscuro {
+    background: #ffc107;
+    color: black;
+}
+
+.categoria {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    margin-left: 10px;
+}
+
+.categoria.personal { background-color: #007bff; }  /* Azul */
+.categoria.trabajo { background-color: #28a745; }   /* Verde */
+.categoria.estudio { background-color: #ffc107; }   /* Amarillo */
+.categoria.otros { background-color: #6c757d; }     /* Gris */
+
+#filtro-categorias {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filtro-categoria {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    background: #ddd;
+    transition: all 0.3s ease;
+}
+
+.filtro-categoria:hover {
+    background: #bbb;
 }
