@@ -434,3 +434,62 @@ function mostrarNotificacion(mensaje, tipo) {
     }
         , 4000);
 }
+
+let tiempoRestante = 25 * 60; // 25 minutos en segundos
+let temporizadorActivo = false;
+let intervaloPomodoro;
+
+const temporizador = document.getElementById('temporizador');
+const progreso = document.getElementById('progreso');
+const btnIniciar = document.getElementById('iniciarPomodoro');
+const btnPausar = document.getElementById('pausarPomodoro');
+const btnReiniciar = document.getElementById('reiniciarPomodoro');
+
+function actualizarTemporizador() {
+    let minutos = Math.floor(tiempoRestante / 60);
+    let segundos = tiempoRestante % 60;
+    temporizador.textContent = `${minutos}:${segundos < 10 ? '0' : ''}${segundos}`;
+    progreso.style.width = `${(tiempoRestante / (25 * 60)) * 100}%`;
+}
+
+function iniciarPomodoro() {
+    if (!temporizadorActivo) {
+        temporizadorActivo = true;
+        btnIniciar.disabled = true;
+        btnPausar.disabled = false;
+        intervaloPomodoro = setInterval(() => {
+            if (tiempoRestante > 0) {
+                tiempoRestante--;
+                actualizarTemporizador();
+            } else {
+                clearInterval(intervaloPomodoro);
+                mostrarNotificacion('🎉 ¡Tiempo terminado! Tómate un descanso.', 'success');
+                temporizadorActivo = false;
+                btnIniciar.disabled = false;
+                btnPausar.disabled = true;
+            }
+        }, 1000);
+    }
+}
+
+function pausarPomodoro() {
+    clearInterval(intervaloPomodoro);
+    temporizadorActivo = false;
+    btnIniciar.disabled = false;
+    btnPausar.disabled = true;
+}
+
+function reiniciarPomodoro() {
+    clearInterval(intervaloPomodoro);
+    tiempoRestante = 25 * 60;
+    actualizarTemporizador();
+    temporizadorActivo = false;
+    btnIniciar.disabled = false;
+    btnPausar.disabled = true;
+}
+
+btnIniciar.addEventListener('click', iniciarPomodoro);
+btnPausar.addEventListener('click', pausarPomodoro);
+btnReiniciar.addEventListener('click', reiniciarPomodoro);
+
+actualizarTemporizador();
